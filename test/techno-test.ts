@@ -19,8 +19,6 @@ describe('Techno Token', () => {
       ethers.parseEther(INITIAL_SUPPLY),
     )
     await TechnoToken.waitForDeployment()
-
-    console.log('Techno Token deployed to:', TechnoToken.target)
   })
 
   it('Should return the right name and symbol', async () => {
@@ -32,6 +30,51 @@ describe('Techno Token', () => {
     expect(await TechnoToken.totalSupply()).to.equal(
       ethers.parseEther(INITIAL_SUPPLY),
     )
+  })
+
+  it('Should return the right balance for the deployer', async () => {
+    expect(await TechnoToken.balanceOf(deplpoyer.address)).to.equal(
+      ethers.parseEther(INITIAL_SUPPLY),
+    )
+  })
+
+  it('Should transfer tokens between accounts', async () => {
+    const amount = ethers.parseEther('1')
+    await TechnoToken.transfer(user1.address, amount)
+    expect(await TechnoToken.balanceOf(user1.address)).to.equal(amount)
+
+    await TechnoToken.connect(user1).transfer(deplpoyer.address, amount)
+    expect(await TechnoToken.balanceOf(deplpoyer.address)).to.equal(
+      ethers.parseEther(INITIAL_SUPPLY),
+    )
+  })
+
+  it('Should fail if the sender doesn’t have enough tokens', async () => {
+    const amount = ethers.parseEther('1')
+
+    await expect(
+      TechnoToken.connect(user1).transfer(deplpoyer.address, amount),
+    ).to.be.revertedWith('ERC20: transfer amount exceeds balance')
+  })
+
+  it('Should update balances after transfers', async () => {
+    const amount = ethers.parseEther('1')
+    await TechnoToken.transfer(user1.address, amount)
+
+    expect(await TechnoToken.balanceOf(user1.address)).to.equal(amount)
+    expect(await TechnoToken.balanceOf(deplpoyer.address)).to.equal(
+      ethers.parseEther(INITIAL_SUPPLY) - amount,
+    )
+  })
+
+  it('Should approve other address to spend token', async () => {
+    const amount = ethers.parseEther('5')
+    await TechnoToken.approve(user1.address, amount)
+    const approvedAmount = await TechnoToken.allowance(
+      deplpoyer.address,
+      user1.address,
+    )
+    expect(approvedAmount).to.equal(amount)
   })
 })
 
