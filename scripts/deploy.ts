@@ -1,4 +1,5 @@
 import {ethers} from 'hardhat'
+import {INITIAL_SUPPLY} from '../helpers'
 
 async function main() {
   const [deployer] = await ethers.getSigners()
@@ -10,7 +11,7 @@ async function main() {
 
   const Techno = await ethers.getContractFactory('Techno')
 
-  const technoToken = await Techno.deploy(ethers.parseEther('1000000'))
+  const technoToken = await Techno.deploy(ethers.parseEther(INITIAL_SUPPLY))
 
   await technoToken.waitForDeployment()
 

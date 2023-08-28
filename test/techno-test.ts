@@ -1,3 +1,40 @@
+import {expect} from 'chai'
+import {ethers} from 'hardhat'
+import {Techno} from '../typechain-types'
+import {SignerWithAddress} from '@nomicfoundation/hardhat-ethers/signers'
+import {INITIAL_SUPPLY} from '../helpers'
+
+describe('Techno Token', () => {
+  let TechnoToken: Techno
+  let deplpoyer: SignerWithAddress
+  let user1: SignerWithAddress
+
+  beforeEach(async () => {
+    const accounts = await ethers.getSigners()
+    deplpoyer = accounts[0]
+    user1 = accounts[1]
+
+    const TechnoTokenFactory = await ethers.getContractFactory('Techno')
+    TechnoToken = await TechnoTokenFactory.deploy(
+      ethers.parseEther(INITIAL_SUPPLY),
+    )
+    await TechnoToken.waitForDeployment()
+
+    console.log('Techno Token deployed to:', TechnoToken.target)
+  })
+
+  it('Should return the right name and symbol', async () => {
+    expect(await TechnoToken.name()).to.equal('TECHNO')
+    expect(await TechnoToken.symbol()).to.equal('TECHNO')
+  })
+
+  it('Should return the right total supply', async () => {
+    expect(await TechnoToken.totalSupply()).to.equal(
+      ethers.parseEther(INITIAL_SUPPLY),
+    )
+  })
+})
+
 // import {
 //   time,
 //   loadFixture,
